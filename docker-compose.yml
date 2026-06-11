@@ -1,0 +1,27 @@
+version: '3.7'
+services:
+  oracle-free2:
+    image: container-registry.oracle.com/database/free:23.9.0.0
+    restart: unless-stopped
+    ports:
+      - "1522:1521"
+    environment:
+      - ORACLE_PWD=testpassword
+    volumes:
+      - ./oracle-scripts:/opt/oracle/scripts/startup
+    #    ./setPassword.sh testpassword
+    #    vi /home/oracle/create_user.sql
+    #  CREATE USER SYSADM IDENTIFIED BY testpassword;
+    #  GRANT CREATE SESSION TO SYSADM;
+    #  GRANT CREATE TABLE TO SYSADM;
+    #  GRANT CREATE VIEW TO SYSADM;
+    #  GRANT CREATE USER TO SYSADM;
+    #  GRANT UNLIMITED TABLESPACE TO SYSADM;
+    #  GRANT CREATE ANY TABLE TO SYSADM;
+    #  GRANT CONNECT, RESOURCE, DBA TO SYSADM;
+    #    sqlplus sys/testpassword@FREEPDB1 as sysdba @/home/oracle/create_user.sql
+    # jdbc:oracle:thin:system/testpassword@//localhost:1522/FREEPDB1
+    networks:
+      - boilerplate
+networks:
+  boilerplate:

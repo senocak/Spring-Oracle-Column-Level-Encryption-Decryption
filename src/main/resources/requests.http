@@ -1,0 +1,2 @@
+### Find users by first name or last name
+GET http://localhost:8082/users?firstname=Anıl3&lastname=Senocak3

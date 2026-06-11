@@ -1,0 +1,41 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: Pgcrypto
+  datasource:
+    url: ${ORACLE_URL:jdbc:oracle:thin:@//localhost:1522/FREEPDB1}
+    username: ${ORACLE_USERNAME:system}
+    password: ${ORACLE_PASSWORD:testpassword}
+  jpa:
+    database-platform: org.hibernate.dialect.OracleDialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        default_schema: SYSTEM
+        show_sql: true
+        order_updates: true
+        order_inserts: true
+        highlight_sql: true
+        jdbc:
+          batch_size: 50
+          fetch_size: 50
+logging:
+  level:
+    net:
+      ttddyy:
+        dsproxy:
+          listener: debug
+    org:
+      hibernate:
+        SQL: error
+      springframework: info
+
+decorator:
+  datasource:
+    datasource-proxy:
+      query:
+        enable-logging: true # Enable query logging
+        log-level: debug # Set the logging level for queries (DEBUG, INFO, etc.)
+      logging: slf4j # Specify the logging library (e.g., slf4j, jul, common, sysout)
