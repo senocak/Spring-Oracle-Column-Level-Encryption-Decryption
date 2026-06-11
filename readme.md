@@ -45,7 +45,7 @@ From this point on, the rest of the application (`UserRepository`, the `/users` 
 
 1. **Controller** builds a JPA `Specification` containing two `LIKE` predicates against `root.get("firstname")` and `root.get("lastname")`.
 2. **Hibernate** plans the query. Because of `@ColumnTransformer(read = ...)`, the projected columns and the predicate columns are rewritten to wrap the raw column in `decrypt_text(...)`. The resulting SQL looks like:
-   ```sql
+   ```oracle-sql
    SELECT decrypt_text(firstname), decrypt_text(lastname), id, created_at
    FROM   users
    WHERE  LOWER(decrypt_text(firstname)) LIKE ?
@@ -166,8 +166,16 @@ services:
 ```db
 jdbc:oracle:thin:sys/testpassword@//localhost:1522/FREEPDB1?internal_logon=sysdba
 ```
+- Connect as `SYSTEM` (or your chosen schema) and test it:
+```db
+jdbc:oracle:thin:system/testpassword@//localhost:1522/FREEPDB1
+```
+```oracle-sql
+SELECT encrypt_text('hello') FROM dual; -- → EBB7C703E675DB3DA397038B4C17823C
+SELECT decrypt_text('EBB7C703E675DB3DA397038B4C17823C') FROM dual; -- → hello
+```
 then execute this to grant the crypto permissions to the SYSTEM user (or your chosen schema):
-```sql
+```oracle-sql
 GRANT EXECUTE ON DBMS_CRYPTO TO SYSTEM;
 ```
 - **Create the crypto functions** (one-time): run the `CREATE OR REPLACE FUNCTION` blocks from the *`DBMS_CRYPTO` setup* section above in the same schema that your app connects to (e.g. `SYSTEM`). These only need to be created once per database, not per app run.
