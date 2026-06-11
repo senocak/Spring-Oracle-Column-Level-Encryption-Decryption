@@ -150,10 +150,30 @@ A third test exercises the Criteria-based `/users?firstname=...&lastname=...` fi
 
 ## Running locally
 
-1. **Start Oracle Free** (one-time): `docker compose up -d`. Listens on `localhost:1522`, service `FREEPDB1`, `system` / `testpassword`. See the comments inside `docker-compose.yml` for the in-container steps to set the password and create a working schema if you don't want to use `SYSTEM`.
-2. **Create the crypto functions** in your target schema (the SQL block under *`DBMS_CRYPTO` setup* above). The entity's `@ColumnTransformer` calls these by unqualified name, so they must be reachable from the connecting user's default search path.
-3. **Run the app**: `./gradlew bootRun`. `ddl-auto=create-drop` will (re)create the `users` table with `firstname`/`lastname` as `RAW(2000)`. `ApplicationReadyEvent` seeds three rows. Server binds on `:8082`.
-4. **Hit the endpoint**: `GET http://localhost:8082/users?firstname=Anıl3&lastname=Senocak3` (see `src/main/resources/requests.http`).
+- **Start Oracle Free** (one-time): `docker compose up -d`. Listens on `localhost:1522`, service `FREEPDB1`, `system` / `testpassword`. See the comments inside `docker-compose.yml` for the in-container steps to set the password and create a working schema if you don't want to use `SYSTEM`.
+```yaml
+version: '3.7'
+services:
+  oracle-free2:
+    image: container-registry.oracle.com/database/free:23.9.0.0
+    restart: unless-stopped
+    ports:
+      - "1522:1521"
+    environment:
+      - ORACLE_PWD=testpassword
+```
+- Connect oracle as sys dba and run:
+```db
+jdbc:oracle:thin:sys/testpassword@//localhost:1522/FREEPDB1?internal_logon=sysdba
+```
+then execute this to grant the crypto permissions to the SYSTEM user (or your chosen schema):
+```sql
+GRANT EXECUTE ON DBMS_CRYPTO TO SYSTEM;
+```
+- **Create the crypto functions** (one-time): run the `CREATE OR REPLACE FUNCTION` blocks from the *`DBMS_CRYPTO` setup* section above in the same schema that your app connects to (e.g. `SYSTEM`). These only need to be created once per database, not per app run.
+- **Create the crypto functions** in your target schema (the SQL block under *`DBMS_CRYPTO` setup* above). The entity's `@ColumnTransformer` calls these by unqualified name, so they must be reachable from the connecting user's default search path.
+-  **Run the app**: `./gradlew bootRun`. `ddl-auto=create-drop` will (re)create the `users` table with `firstname`/`lastname` as `RAW(2000)`. `ApplicationReadyEvent` seeds three rows. Server binds on `:8082`.
+-  **Hit the endpoint**: `GET http://localhost:8082/users?firstname=Anıl3&lastname=Senocak3` (see `src/main/resources/requests.http`).
 
 Override datasource defaults with the `ORACLE_URL` / `ORACLE_USERNAME` / `ORACLE_PASSWORD` env vars.
 
