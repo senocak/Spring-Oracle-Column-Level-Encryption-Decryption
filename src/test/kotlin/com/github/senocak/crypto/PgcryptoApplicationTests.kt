@@ -1,4 +1,4 @@
-package com.github.senocak.pgcrypto
+package com.github.senocak.crypto
 
 import java.sql.ResultSet
 import org.assertj.core.api.Assertions.assertThat

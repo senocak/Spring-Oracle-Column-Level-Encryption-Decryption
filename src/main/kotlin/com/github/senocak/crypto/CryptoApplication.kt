@@ -1,4 +1,4 @@
-package com.github.senocak.pgcrypto
+package com.github.senocak.crypto
 
 import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
