@@ -179,6 +179,10 @@ services:
 ```db
 jdbc:oracle:thin:sys/testpassword@//localhost:1522/FREEPDB1?internal_logon=sysdba
 ```
+then execute this to grant the crypto permissions to the SYSTEM user (or your chosen schema):
+```oracle-sql
+GRANT EXECUTE ON DBMS_CRYPTO TO SYSTEM;
+```
 - Connect as `SYSTEM` (or your chosen schema) and test it:
 ```db
 jdbc:oracle:thin:system/testpassword@//localhost:1522/FREEPDB1
@@ -186,10 +190,6 @@ jdbc:oracle:thin:system/testpassword@//localhost:1522/FREEPDB1
 ```oracle-sql
 SELECT encrypt_text('hello') FROM dual; -- → EBB7C703E675DB3DA397038B4C17823C
 SELECT decrypt_text('EBB7C703E675DB3DA397038B4C17823C') FROM dual; -- → hello
-```
-then execute this to grant the crypto permissions to the SYSTEM user (or your chosen schema):
-```oracle-sql
-GRANT EXECUTE ON DBMS_CRYPTO TO SYSTEM;
 ```
 - **Create the crypto functions** (one-time): run the `CREATE OR REPLACE FUNCTION` blocks from the *`DBMS_CRYPTO` setup* section above in the same schema that your app connects to (e.g. `SYSTEM`). These only need to be created once per database, not per app run.
 - **Create the crypto functions** in your target schema (the SQL block under *`DBMS_CRYPTO` setup* above). The entity's `@ColumnTransformer` calls these by unqualified name, so they must be reachable from the connecting user's default search path.
